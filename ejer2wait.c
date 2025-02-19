@@ -22,17 +22,20 @@ int main() {
             if (bisnieto == 0) {
                 // bisnieto
                 for (int i = 0; i < 1000000; i++) {
+                  printf("%d \n", i);
                 }
                 
             } else {
                 // nieto
                 for (int i = 0; i < 1000000; i++) {
+                  printf("%d \n", i);
                 }
                 wait(NULL); // Esperar bisnieto
             }
         } else {
             // hijo
             for (int i = 0; i < 1000000; i++) {
+              printf("%d \n", i);
             }
             wait(NULL); // Esperar nieto
         }
@@ -40,7 +43,7 @@ int main() {
         // padre
         wait(NULL); // Esperar hijo
         fin = clock();
-        double finalisimo = (double)(fin - inicio);
+        double finalisimo = (double)(fin - inicio) / CLOCKS_PER_SEC;
         
         printf("Tiempo: %f\n", finalisimo);
     }
