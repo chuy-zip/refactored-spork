@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     // 0666 permiso de escritura para todo usuario
     
     if(shm_file_descriptor == -1) {
-      printf("error al crear la memoria compartida");
+      printf("error al crear la memoria compartida\n");
       return 1;
     }
     
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
     int truncate = ftruncate(shm_file_descriptor, SHM_SIZE);
     
     if (truncate == -1) {
-      printf("Error al configurar tamanio memroria");
+      printf("Error al configurar tamanio memroria\n");
       return 1;
     }
     
@@ -55,9 +55,31 @@ int main(int argc, char** argv) {
     
     char* ptr = mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_file_descriptor, 0);
     if (ptr == MAP_FAILED) {
-        printf("Error al mapear memoria ");
+        printf("Error al mapear memoria \n");
         return 1;
     }
-            
+    
+    // ahora los pipes
+    int pipefd[2];
+    int pipes = pipe(pipefd);
+    if (pipes == -1) {
+        printf("no se pudo crear un pipe \n");
+        return 1;
+    }
+
+    // Crear un proceso hijo
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("no se creo el hijo \n");
+        return 1;
+    } 
+    
+    if (pid == 0) {
+        printf("hijo creado, tiene PID %d, y el padre es %d \n", getpid(), getppid());    
+    } else {
+      printf("soy el padre con pid: %d \n", getpid());
+    }
+
+    
     return 0;
 }
