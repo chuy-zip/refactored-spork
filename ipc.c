@@ -24,8 +24,7 @@ int main(int argc, char** argv) {
     int n = atoi(argv[1]);  
     char x = argv[2][0]; 
 
-    printf("Numero n: %d\n", n);
-    printf("Letra x: %c\n", x);
+    printf("Se recibio los siguiente -> Numero n: %d, Letras x: %c\n", n, x);
     
     // nombre memoria compartida
     const char* shm_name = "/mem_compartida";
@@ -36,20 +35,20 @@ int main(int argc, char** argv) {
     // 0666 permiso de escritura para todo usuario
     
     if(shm_file_descriptor == -1) {
-      printf("error al crear la memoria compartida\n");
+      printf("%c dice: error al crear la memoria compartida\n", x);
       return 1;
     } else {
-      printf("Memorio compartida abierta/creada. File descriptor es: %d \n", shm_file_descriptor);
+      printf("%c dice: Memorio compartida abierta/creada. File descriptor es: %d \n", x, shm_file_descriptor);
     }
     
     // configurar tamanio memoria
     int truncate = ftruncate(shm_file_descriptor, SHM_SIZE);
     
     if (truncate == -1) {
-      printf("Error al configurar tamanio memroria\n");
+      printf("%c dice: Error al configurar tamanio memroria\n", x);
       return 1;
     } else {
-      printf("Sized Memoria compartida configurado correctamente a %d bytes.\n", SHM_SIZE);
+      printf("%c dice: Tamanio Memoria compartida configurado correctamente a %d bytes.\n", x, SHM_SIZE);
     }
     
     // aqui hay muchos parametros
@@ -60,10 +59,10 @@ int main(int argc, char** argv) {
     
     char* ptr = mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_file_descriptor, 0);
     if (ptr == MAP_FAILED) {
-        printf("Error al mapear memoria \n");
+        printf("%c dice: Error al mapear memoria \n", x);
         return 1;
     } else {
-        printf("Memoria compartida mapeada con Puntero: %p\n", (void*)ptr);
+        printf("%c dice: Memoria compartida mapeada con Puntero: %p\n", x, (void*)ptr);
     }
     
     // ahora los pipes
@@ -83,12 +82,12 @@ int main(int argc, char** argv) {
     // Crear un proceso hijo
     pid_t pid = fork();
     if (pid < 0) {
-        printf("no se creo el hijo \n");
+        printf("%c dice: no se creo el hijo \n", x);
         return 1;
     } 
     
     if (pid == 0) {
-        printf("hijo creado, tiene PID %d, y el padre es %d \n", getpid(), getppid());  
+        printf("%c dice, hijo creado, tiene PID %d, y el padre es %d \n", x, getpid(), getppid());  
         
         // el hijo no va a escribir, solo leera la memoria compartida
         close(pipefd[1]); // cerrar extremo de escritura
@@ -105,7 +104,7 @@ int main(int argc, char** argv) {
         exit(0);
         
     } else {
-      printf("soy el padre con pid: %d \n", getpid());
+      printf("%c dice: soy el padre con pid: %d \n", x, getpid());
       
       //el padre solo escribe, no lee
       close(pipefd[0]);  // Cerrar el extremo de lectura del pipe al principio
@@ -120,7 +119,7 @@ int main(int argc, char** argv) {
       wait(NULL);
 
       // Mostrar mem compartida
-      printf("La memoria compartida: %s\n", ptr);
+      printf("%c dice: La memoria compartida: %s\n", x, ptr);
 
       // Liberar
       munmap(ptr, SHM_SIZE);
