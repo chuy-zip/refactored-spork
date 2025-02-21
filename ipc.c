@@ -29,15 +29,28 @@ int main(int argc, char** argv) {
     // nombre memoria compartida
     const char* shm_name = "/mem_compartida";
     
-    int shm_file_descriptor = shm_open(shm_name, O_CREAT | O_RDWR, 0666);
+    int shm_file_descriptor = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, 0666);
     // O_CREAT es un "crear si no existe"
     // O_RDWR abre para leer y escribir RD read WR write
     // 0666 permiso de escritura para todo usuario
+    // O_EXCL flag de fallo si ya existe
     
-    if(shm_file_descriptor == -1) {
-      printf("%c dice: error al crear la memoria compartida\n", x);
-      return 1;
-    } else {
+    if (shm_file_descriptor == -1) {
+        if (errno == EEXIST) {
+        
+            // La memoria compartida ya existe
+            printf("%c dice: La memoria compartida ya existe.\n", x);
+            shm_file_descriptor = shm_open(shm_name, O_RDWR, 0666);
+            if (shm_file_descriptor == -1) {
+                printf("%c dice: Error al adjuntarse a la memoria compartida.\n", x);
+                return 1;
+            }
+        } else {
+            // Otro error
+            printf("%c dice: Error al crear/abrir la memoria compartida.\n", x);
+            return 1;
+        }
+    }  else {
       printf("%c dice: Memorio compartida abierta/creada. File descriptor es: %d \n", x, shm_file_descriptor);
     }
     
@@ -73,10 +86,10 @@ int main(int argc, char** argv) {
     
     int pipes = pipe(pipefd);
     if (pipes == -1) {
-        printf("no se pudo crear un pipe \n");
+        printf("%c dice: no se pudo crear un pipe \n", x);
         return 1;
     } else {
-        printf("Pipe creado. Lectura: %d, Escritura: %d\n", pipefd[0], pipefd[1]);
+        printf("%c dice: Pipe creado. Lectura: %d, Escritura: %d\n", x, pipefd[0], pipefd[1]);
     }
 
     // Crear un proceso hijo
