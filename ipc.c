@@ -39,5 +39,25 @@ int main(int argc, char** argv) {
       return 1;
     }
     
+    // configurar tamanio memoria
+    int truncate = ftruncate(shm_file_descriptor, SHM_SIZE);
+    
+    if (truncate == -1) {
+      printf("Error al configurar tamanio memroria");
+      return 1;
+    }
+    
+    // aqui hay muchos parametros
+    // el 0 es que el sistema elige la dir de memoria
+    // PROT READ  | WRITE son permisos
+    // MAP_SHARED indica memoria compartida entre procesos
+    // el otro 0 es offset dentro de la memoria 
+    
+    char* ptr = mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_file_descriptor, 0);
+    if (ptr == MAP_FAILED) {
+        printf("Error al mapear memoria ");
+        return 1;
+    }
+            
     return 0;
 }
